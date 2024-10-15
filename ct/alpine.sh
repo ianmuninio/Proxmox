@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source <(curl -s https://raw.githubusercontent.com/tteck/Proxmox/main/misc/build.func)
+source <(curl -s https://raw.githubusercontent.com/ianmuninio/Proxmox/main/misc/build.func)
 # Copyright (c) 2021-2024 tteck
 # Author: tteck (tteckster)
 # License: MIT
@@ -20,6 +20,7 @@ EOF
 header_info
 echo -e "Loading..."
 APP="Alpine"
+APK_REPO_MIRROR_URL="http://dl-cdn.alpinelinux.org"
 var_disk="0.1"
 var_cpu="1"
 var_ram="512"

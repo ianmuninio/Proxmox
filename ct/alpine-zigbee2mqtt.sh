@@ -20,6 +20,7 @@ EOF
 header_info
 echo -e "Loading..."
 APP="Alpine-Zigbee2MQTT"
+APK_REPO_MIRROR_URL="http://dl-cdn.alpinelinux.org"
 var_disk="0.3"
 var_cpu="1"
 var_ram="256"

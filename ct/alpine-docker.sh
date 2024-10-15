@@ -20,6 +20,7 @@ EOF
 header_info
 echo -e "Loading..."
 APP="Alpine-Docker"
+APK_REPO_MIRROR_URL="http://dl-cdn.alpinelinux.org"
 var_disk="2"
 var_cpu="1"
 var_ram="1024"

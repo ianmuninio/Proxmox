@@ -149,6 +149,9 @@ echo_default() {
   echo -e "${DGN}Using DNS Server Address: ${BGN}Host${CL}"
   echo -e "${DGN}Using MAC Address: ${BGN}Default${CL}"
   echo -e "${DGN}Using VLAN Tag: ${BGN}Default${CL}"
+  if [ "$var_os" == "alpine" ]; then
+    echo -e "${DGN}Using APK Repository Mirror URL: ${BGN}$APK_REPO_MIRROR_URL{CL}"
+  fi
   echo -e "${DGN}Enable Root SSH Access: ${BGN}No${CL}"
   echo -e "${DGN}Enable Verbose Mode: ${BGN}No${CL}"
   echo -e "${BL}Creating a ${APP} LXC using the above default settings${CL}"
@@ -448,6 +451,24 @@ advanced_settings() {
     exit-script
   fi
 
+  if [ "$var_os" == "alpine" ]; then
+    while true; do
+      APK_REPO_MIRROR_URL1=$(whiptail --backtitle "Proxmox VE Helper Scripts" --inputbox "Set APK Repository Mirror URL" 8 58 $APK_REPO_MIRROR_URL --title "APK Repositories Mirror" 3>&1 1>&2 2>&3)
+      exit_status=$?
+      if [ $exit_status -eq 0 ]; then
+        if [ -z $APK_REPO_MIRROR_URL1 ]; then
+          whiptail --backtitle "Proxmox VE Helper Scripts" --msgbox "\"$APK_REPO_MIRROR_URL1\" is an invalid APK Repository URL. Please enter a valid APK Repository URL." 8 58
+        else
+          APK_REPO_MIRROR_URL=$APK_REPO_MIRROR_URL1
+          echo -e "${DGN}Using APK Repository Mirror URL: ${BGN}$APK_REPO_MIRROR_URL${CL}"
+          break
+        fi
+      else
+        exit-script
+      fi
+    done
+  fi
+
   if [[ "$PW" == -password* ]]; then
     if (whiptail --backtitle "Proxmox VE Helper Scripts" --defaultno --title "SSH ACCESS" --yesno "Enable Root SSH Access?" 10 58); then
       SSH="yes"
@@ -625,12 +646,12 @@ EOF
   msg_ok "Started LXC Container"
   if [ "$var_os" == "alpine" ]; then
     sleep 3
-        pct exec "$CTID" -- /bin/sh -c 'cat <<EOF >/etc/apk/repositories
-http://dl-cdn.alpinelinux.org/alpine/latest-stable/main
-http://dl-cdn.alpinelinux.org/alpine/latest-stable/community
-#http://dl-cdn.alpinelinux.org/alpine/v3.19/main
-#http://dl-cdn.alpinelinux.org/alpine/v3.19/community
-EOF'
+        pct exec "$CTID" -- /bin/sh -c "cat <<EOF >/etc/apk/repositories
+$APK_REPO_MIRROR_URL/alpine/latest-stable/main
+$APK_REPO_MIRROR_URL/alpine/latest-stable/community
+#$APK_REPO_MIRROR_URL/alpine/v3.19/main
+#$APK_REPO_MIRROR_URL/alpine/v3.19/community
+EOF"
     pct exec "$CTID" -- ash -c "apk add bash >/dev/null"
   fi
   lxc-attach -n "$CTID" -- bash -c "$(wget -qLO - https://raw.githubusercontent.com/tteck/Proxmox/main/install/$var_install.sh)" || exit
